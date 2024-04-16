@@ -6,7 +6,7 @@ const userSchema = {
   type: "object",
   properties: {
     username: { type: "string", minLength: 3, maxLength: 50 },
-    email: { type: "string", format: "email" },
+    email: { type: "string" },
     password: { type: "string", minLength: 6 },
     gender: {
       type: "object",
@@ -16,7 +16,6 @@ const userSchema = {
       },
       required: ["ar", "en"],
     },
-    admin: { type: "boolean" },
   },
   required: ["username", "email", "password", "gender"],
 };

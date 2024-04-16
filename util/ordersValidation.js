@@ -5,10 +5,10 @@ const ajv = new Ajv();
 const orderSchema = {
   type: "object",
   properties: {
-    userId: { type: "string", format: "ObjectId" },
+    userId: { type: "string" },
     products: {
       type: "array",
-      items: { type: "string", format: "ObjectId" },
+      items: { type: "string" },
       minItems: 1,
     },
     totalPrice: { type: "number", minimum: 0 },
