@@ -1,10 +1,10 @@
 import { Router } from "express";
+import * as orderControllers from "../controllers/orderControllers.js";
 const router = Router();
 
-router.get("/");
-router.post("/");
-router.get("/:id");
-router.put("/:id");
-router.delete("/:id");
+router.get("/", orderControllers.GetAllOrders);
+router.get("/:id", orderControllers.GetOrderById);
+router.post("/", orderControllers.CreateOrder);
+router.delete("/:id", orderControllers.DeleteOrder);
 
 export default router;
