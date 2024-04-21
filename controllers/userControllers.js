@@ -31,5 +31,29 @@ export async function signup(req, res) {
     return res.status(500).send("Internal Server Error!");
   }
 }
-export async function login(req, res) {}
+
+
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+    const valid = validate(req.body);
+
+    if (!valid) return res.status(400).json(validate.errors);
+    const user = await userModel.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).send("Invalid credentials");
+    }
+
+    return res.status(200).send("Login successful");
+  } catch (error) {
+    return res.status(500).send("Internal Server Error!");
+  }
+}
+
 export async function update(req, res) {}
