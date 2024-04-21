@@ -38,6 +38,18 @@ export async function GetProductsById(req, res) {
 }
 export async function UpdateProduct(req, res) { }
 
-
+export async function DeleteProduct(req, res) {
+    try {
+        const productId = req.params.id;
+        const productToBeDeleted = await productModel.findOneAndDelete({ _id: productId }); // Corrected line
+        if (!productToBeDeleted) {
+            return res.status(404).json({ message: `Product with id ${productId} not found` }); // Corrected line
+        }
+        return res.json({ message: `Product with id ${productId} deleted successfully`, data: productToBeDeleted }); // Corrected line
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal server error");
+    }
+}
 
 
