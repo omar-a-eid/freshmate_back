@@ -57,3 +57,13 @@ export async function login(req, res) {
 }
 
 export async function update(req, res) {}
+
+export async function getusers(req, res) {
+  // get all users from the DB
+  var AllUsers = await userModel.find();
+  if (AllUsers) {
+      // return res.json(AllUsers);
+      return (res.status(200).json({ Message: `All Users found` , AllUsers }));
+  }
+  return (res.status(400).json({ message: "error in loading All the Users" }));
+}
