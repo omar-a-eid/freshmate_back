@@ -1,9 +1,11 @@
 import orderModel from "../models/orderModel.js";
 
 // it didnot bring the products with it when i added the array products
-export async function GetAllOrders(req, res) {
+export async function GetAllOrdersForUser(req, res) {
+    // middleware aw url *** 
+    // try and catch ***
     // get all data from the DB
-    var AllOrders = await orderModel.find();
+    const AllOrders = await orderModel.find({userId:"661ef7ea3f24889836a85b0c"});
     if (AllOrders) {
         return res.json(AllOrders);
     }
