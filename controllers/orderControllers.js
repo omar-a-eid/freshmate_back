@@ -3,16 +3,41 @@ import { mapStatus } from "../util/orderUtil.js";
 import OrderModel from "../models/orderModel.js";
 import orderModel from "../models/orderModel.js";
 
+
+// is this correct
+// is this correct
+// is this correct
+
+
+// Middleware function to extract user ID from request
+export async function extractUserId(req, res, next) {
+    // Assuming user ID is present in req.user.id
+    const userId = req.user.id;
+
+    // Set the user ID in the request object
+    req.userId = userId;
+
+    // Call the next middleware or route handler
+    next();
+}
 // it didnot bring the products with it when i added the array products
 export async function GetAllOrdersForUser(req, res) {
-    // middleware aw url *** 
-    // try and catch ***
-    // get all data from the DB
-    const AllOrders = await OrderModel.find({ userId: "661ef7ea3f24889836a85b0c" });
-    if (AllOrders) {
-        return res.json(AllOrders);
+    // try and catch
+    try {
+        // Get the user ID from the request
+        const userId = req.userId;
+        // get all data from the DB
+        const allOrders = await OrderModel.find({ userId });
+        if (allOrders) {
+            // return res.json(allOrders);
+            return res.status(200).json({ message: `Order of user ${userId} is :`, data: allOrders });
+
+        }
+        return (res.status(400).json({ message: "error in loading the Orders of the specific user" }));
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal server error' });
     }
-    return (res.status(400).json({ message: "error in loading the Orders" }));
+
 }
 
 const GetAllOrders = async (req, res) => {
@@ -47,25 +72,27 @@ const UpdateOrders = async (req, res) => {
             const updatedOrder = await OrderModel.findOne({ _id: orderId });
             if (!updatedOrder) {
                 return res.status(404).send("Order Not Found");
-            }else{
+            } else {
                 updatedOrder.userId = req.body.userId;
                 updatedOrder.products = req.body.products;
                 updatedOrder.totalPrice = req.body.totalPrice;
-                // updatedOrder.date = req.body.date;
-                // updatedOrder.status = req.body.status;
+                updatedOrder.date = req.body.date;
+                updatedOrder.status = req.body.status;
                 console.log(updatedOrder);
-                // let finalOrder = await updatedOrder.save(); // this line ya omar makes an error 
+                let finalOrder = await updatedOrder.save(); // this line ya omar makes an error 
                 // let AllOrders = await OrderModel.find();
                 // console.log(finalOrder);
                 return res.status(200).json({ message: "Order Updated Successfully", data: updatedOrder });
             }
         } else {
-            return res.status(400).send("Invalid Order Data Entered");
+            // return res.status(400).send("Invalid Order Data Entered");
+            res.send(OrderValid.errors[0].instancePath.split("/")[1] + " : " + OrderValid.errors[0].keyword + " ==> " + OrderValid.errors[0].message);
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-    
+
 };
 
 export function CreateOrder(req, res) {
