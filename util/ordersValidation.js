@@ -16,7 +16,7 @@ const orderSchema = {
     status: {
       type: "object",
       properties: {
-        ar: { type: "string", enum: ["معلق", " مقيول", " مرفوض"] },
+        ar: { type: "string", enum: ["معلق", "مقيول", "مرفوض"] },
         en: { type: "string", enum: ["pending", "accepted", "rejected"] },
       },
       required: ["ar", "en"],

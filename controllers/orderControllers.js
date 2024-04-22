@@ -1,6 +1,7 @@
 import OrderValid from "../util/ordersValidation.js";
 import { mapStatus } from "../util/orderUtil.js";
 import OrderModel from "../models/orderModel.js";
+import orderModel from "../models/orderModel.js";
 
 // it didnot bring the products with it when i added the array products
 export async function GetAllOrdersForUser(req, res) {
@@ -67,7 +68,43 @@ const UpdateOrders = async (req, res) => {
     
 };
 
-export async function CreateOrder(req, res) { } //salma
-export async function DeleteOrder(req, res) { } //salma
+export function CreateOrder(req, res) {
+    try{
+        // get order from user
+        let newOrder = req.body; //{userId, products[], totalPrice, status, date}
+        // check order object validation
+        if(OrderValid(newOrder)){
+            let order = new OrderModel(newOrder);
+            order.save();
+            return res.status(201).json({message:"Order Added Successfully", newOrder:order})
+        }
+        return res.status(404).send(OrderValid.errors[0].instancePath.split("/")[1]
+                                     +": "+
+                                    OrderValid.errors[0].keyword
+                                     +" ==> "+
+                                    OrderValid.errors[0].message 
+                                );
+    }catch(error){
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+ } 
+
+export async function DeleteOrder(req, res) {
+    try{
+        // get order id
+        const orderId = req.params.id;
+        // find order matches this id
+        const deletedOrder = await orderModel.findById(orderId);
+        if(deletedOrder){
+            // if exists delete order
+            await orderModel.deleteOne({_id: orderId});
+            return res.status(201).json({message: "Order Deleted Successfully"});
+        }
+        return res.status(404).send("Order Not Found");
+
+    }catch(error){
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+ } 
 
 export { GetAllOrders, GetOrdersById, UpdateOrders };
