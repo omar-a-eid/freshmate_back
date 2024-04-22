@@ -79,7 +79,14 @@ export async function update(req, res) {
       foundUser.username = req.body.username
       foundUser.email = req.body.email
       foundUser.password = req.body.password
+
+      // look at this omar i encrypted the password is this correct
+
+      // Update request body with hashed password and lowercased email
+      const hashedPassword = await bcrypt.hash(foundUser.password, 10);
+      foundUser.password = hashedPassword;
       foundUser.gender = req.body.gender
+
       //save to database
       let updatedUser = await foundUser.save();
       // AllOrders = await OrderModel.find();
