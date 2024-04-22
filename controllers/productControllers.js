@@ -1,5 +1,5 @@
 import productModel from "../models/productModel.js";
-import productsValidation from "../util/productsValidation.js";
+import validate from "../util/productsValidation.js";
 export async function GetProducts(req, res) {
   try {
     // Get All Products
@@ -21,7 +21,7 @@ export async function AddProduct(req, res) {
         if(!valid) {
             return res.status(400).json(valid.errors);
         }
-        const newProduct = new ProductModel({ title, images, price, quantity, desc });
+        const newProduct = new productModel({ title, images, price, quantity, desc });
         await newProduct.save();
         return res.json({ message: "Product added successfully", data: newProduct });
     } catch (error) {
