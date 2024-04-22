@@ -3,15 +3,6 @@ import userModel from "../models/userModel.js";
 import { mapGender, userExists } from "../util/userUtil.js";
 import validate from "../util/userValidation.js";
 
-export async function getusers(req, res) {
-  // get all users from thee DB
-  var AllUsers = await userModel.find();
-  if (AllUsers) {
-    // return res.json(AllUsers);
-    return (res.status(200).json({ Message: `All Users found`, AllUsers }));
-  }
-  return (res.status(400).json({ message: "error in loading All the Users" }));
-}
 
 export async function signup(req, res) {
   try {
@@ -69,9 +60,9 @@ export async function update(req, res) {
   try {
     if (validate(req.body)) {
       // get param of order req.body.id
-      let UserId = req.params.id;
+      const UserId = req.params.id;
       // check for it in the db if found change the data 
-      let foundUser = await userModel.findById(UserId);
+      const foundUser = await userModel.findById(UserId);
       if (!foundUser) {
         return res.send(`User not found`)
       }
