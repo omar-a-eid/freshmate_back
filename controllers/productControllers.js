@@ -6,6 +6,10 @@ export async function GetProducts(req, res) { }
 export async function AddProduct(req, res) {
     try {
         const { title, images, price, quantity, desc } = req.body;
+        const valid = validate(req.body);
+        if(!valid) {
+            return res.status(400).json(valid.errors);
+        }
         const newProduct = new ProductModel({ title, images, price, quantity, desc });
         await newProduct.save();
         return res.json({ message: "Product added successfully", data: newProduct });
