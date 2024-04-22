@@ -1,11 +1,12 @@
 import { Router } from "express";
-import * as Ord_con from "../controllers/orderController.js";
+import * as orderControllers from "../controllers/orderControllers.js";
 
 const router = Router();
 
-router.get("/admin", Ord_con.GetAllOrders);
-router.post("/"); 
-router.get("/:id", Ord_con.GetOrdersById);
-router.put("/:id", Ord_con.UpdateOrders);
-router.delete("/:id"); 
+router.get("/admin", orderControllers.GetAllOrders); //adel
+router.get("/:id", orderControllers.GetOrdersById);//adel
+router.put("/:id", orderControllers.UpdateOrders);//adel
+router.get("/", orderControllers.GetAllOrdersForUser);//karim
+router.post("/", orderControllers.CreateOrder);//salma
+router.delete("/:id", orderControllers.DeleteOrder);//salma
 export default router;
