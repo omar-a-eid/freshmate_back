@@ -59,7 +59,7 @@ export async function login(req, res) {
 export async function update(req, res) {}
 
 export async function getusers(req, res) {
-  // get all users from the DB
+  // get all users from thee DB
   var AllUsers = await userModel.find();
   if (AllUsers) {
       // return res.json(AllUsers);
