@@ -12,7 +12,7 @@ const orderSchema = new Schema({
   status: {
     ar: {
       type: String,
-      enum: ["معلق", "مقيول", "مرفوض"],
+      enum: ["معلق", "مقبول", "مرفوض"],
       required: true,
     },
     en: {
