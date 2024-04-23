@@ -5,5 +5,5 @@ const router = Router();
 
 router.post("/signup", userControllers.signup);
 router.post("/login", userControllers.login);
-router.put("/:id", isAuth, userControllers.update); // edit the user with id or no ya omar
+router.put("/:id", isAuth, userControllers.update);
 export default router;
