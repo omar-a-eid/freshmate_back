@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import { mapGender, userExists } from "../util/userUtil.js";
 import validate from "../util/userValidation.js";
-
 
 export async function signup(req, res) {
   try {
@@ -36,9 +36,7 @@ export async function signup(req, res) {
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
-    const valid = validate(req.body);
 
-    if (!valid) return res.status(400).json(validate.errors);
     const user = await userModel.findOne({ email: email.toLowerCase() });
 
     if (!user) {
@@ -49,8 +47,14 @@ export async function login(req, res) {
     if (!isPasswordValid) {
       return res.status(401).send("Invalid credentials");
     }
-
-    return res.status(200).send("Login successful");
+    const token = jwt.sign(
+      { email, userId: user._id },
+      process.env.TOKEN_SECRET,
+      {
+        expiresIn: "10h",
+      }
+    );
+    return res.status(200).send({ userId: user._id.toString(), token: token });
   } catch (error) {
     return res.status(500).send("Internal Server Error!");
   }
@@ -58,38 +62,40 @@ export async function login(req, res) {
 
 export async function update(req, res) {
   try {
+    const { gender } = req.body;
+    if (gender) req.body.gender = mapGender(gender);
+
     if (validate(req.body)) {
       // get param of order req.body.id
       const UserId = req.params.id;
-      // check for it in the db if found change the data 
+      // check for it in the db if found change the data
       const foundUser = await userModel.findById(UserId);
       if (!foundUser) {
-        return res.send(`User not found`)
+        return res.send(`User not found`);
       }
       //update the new data with the old data
-      foundUser.username = req.body.username
-      foundUser.email = req.body.email
-      foundUser.password = req.body.password
-
-      // look at this omar i encrypted the password is this correct
-
+      foundUser.username = req.body.username;
       // Update request body with hashed password and lowercased email
+      foundUser.email = req.body.email.toLowerCase();
       const hashedPassword = await bcrypt.hash(foundUser.password, 10);
       foundUser.password = hashedPassword;
-      foundUser.gender = req.body.gender
 
       //save to database
       let updatedUser = await foundUser.save();
       // AllOrders = await OrderModel.find();
-      return (res.json({ message: `Order ${UserId} updated successfully`, data: updatedUser }));// res
-
+      return res.json({
+        message: `Order ${UserId} updated successfully`,
+        data: updatedUser,
+      }); // res
     }
-    res.send(validate.errors[0].instancePath.split("/")[1] + " : " + validate.errors[0].keyword + " ==> " + validate.errors[0].message);
+    res.send(
+      validate.errors[0].instancePath.split("/")[1] +
+        " : " +
+        validate.errors[0].keyword +
+        " ==> " +
+        validate.errors[0].message
+    );
   } catch (error) {
     return res.status(500).send("Internal Server Error!");
   }
-
-
 }
-
-
