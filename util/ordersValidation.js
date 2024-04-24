@@ -12,11 +12,11 @@ const orderSchema = {
       minItems: 1,
     },
     totalPrice: { type: "number", minimum: 0 },
-    date: { type: "string", format: "date-time" },
+    date: { type: "string" },
     status: {
       type: "object",
       properties: {
-        ar: { type: "string", enum: ["معلق", "تم القبول", "تم الرفض"] },
+        ar: { type: "string", enum: ["معلق", "مقبول", "مرفوض"] },
         en: { type: "string", enum: ["pending", "accepted", "rejected"] },
       },
       required: ["ar", "en"],
