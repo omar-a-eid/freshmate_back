@@ -2,43 +2,21 @@ import OrderModel from "../models/orderModel.js";
 import { mapStatus } from "../util/orderUtil.js";
 import OrderValid from "../util/ordersValidation.js";
 
-// is this correct
-// is this correct
-// is this correct
-
-// Middleware function to extract user ID from request
-// export async function extractUserId(req, res, next) {
-//     // Assuming user ID is present in req.user.id
-//     const userId = req.user.id;
-
-//     // Set the user ID in the request object
-//     req.userId = userId;
-
-//     // Call the next middleware or route handler
-//     next();
-// }
-
-// it didnot bring the products with it when i added the array products
 export async function GetAllOrdersForUser(req, res) {
-  // try and catch
   try {
     // Get the user ID from the request
     const userId = req.params.id;
     // get all data from the DB
     const allOrders = await OrderModel.find({
-      userId: "661ef7ea3f24889836a85b0c",
+      userId: userId,
     });
     if (allOrders) {
-      // return res.json(allOrders);
-      return res
-        .status(200)
-        .json({ message: `Order of user ${userId} is :`, data: allOrders });
+      return res.status(200).json(allOrders);
     }
     return res
       .status(400)
       .json({ message: "error in loading the Orders of the specific user" });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
