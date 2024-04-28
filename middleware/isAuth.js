@@ -1,20 +1,22 @@
 import jwt from "jsonwebtoken";
+
 export default async function isAuth(req, res, next) {
-  const token = req.get("Authorization").split(" ")[1];
-  let isVerified;
+  const token = req.get("Authorization")?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "No token provided." });
+  }
+
   try {
-    isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
+    const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
+    req.userId = isVerified.userId;
+    req.email = isVerified.email;
+    next();
   } catch (error) {
-    throw error;
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: "Token expired." });
+    } else {
+      return res.status(401).json({ error: "Not authenticated." });
+    }
   }
-
-  if (!isVerified) {
-    const error = new Error("Not authenticated.");
-    error.statusCode = 401;
-    throw error;
-  }
-
-  req.userId = isVerified.userId;
-  req.email = isVerified.email;
-  next();
 }

@@ -9,7 +9,7 @@ export async function GetAllOrdersForUser(req, res) {
     // get all data from the DB
     const allOrders = await OrderModel.find({
       userId: userId,
-    });
+    }).populate("products.product");
     if (allOrders) {
       return res.status(200).json(allOrders);
     }
@@ -23,7 +23,7 @@ export async function GetAllOrdersForUser(req, res) {
 
 const GetAllOrders = async (req, res) => {
   try {
-    const allOrders = await OrderModel.find();
+    const allOrders = await OrderModel.find().populate("products.product");
     return res.json(allOrders);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
@@ -33,7 +33,9 @@ const GetAllOrders = async (req, res) => {
 const GetOrdersById = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const foundOrder = await OrderModel.findById({ _id: orderId });
+    const foundOrder = await OrderModel.findById({ _id: orderId }).populate(
+      "products.product"
+    );
     if (foundOrder) {
       res.status(200).json({ data: foundOrder });
     } else {
