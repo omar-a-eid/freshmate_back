@@ -5,9 +5,11 @@ export async function getWishlist(req, res) {
   const userId = req.params.id;
 
   try {
-    const wishlist = await wishlistModel.find({ userId }).populate("products");
+    const wishlist = await wishlistModel
+      .findOne({ userId })
+      .populate("products");
     if (wishlist) {
-      return res.json({ wishlist });
+      return res.json(wishlist);
     } else {
       return res.json({ message: "No Products Found" });
     }

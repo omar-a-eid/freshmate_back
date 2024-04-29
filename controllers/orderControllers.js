@@ -43,7 +43,7 @@ const GetOrdersById = async (req, res) => {
     const sameUser = foundOrder.userId == req.userId;
 
     if (foundOrder) {
-      res.status(200).json({ data: foundOrder });
+      res.status(200).json(foundOrder);
     } else {
       res.status(404).send("Order Not Found");
     }

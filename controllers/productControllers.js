@@ -5,7 +5,7 @@ export async function GetProducts(req, res) {
     // Get All Products
     const allProducts = await productModel.find();
     if (allProducts) {
-      return res.json({ AllProducts: allProducts });
+      return res.json(allProducts);
     } else {
       return res.json({ message: "No Products Found" });
     }
@@ -51,10 +51,7 @@ export async function GetProductsById(req, res) {
       //if not found in DB
       return res.send("invalid Product id");
     }
-    return res.json({
-      message: `Product ${ProductId} Founded`,
-      data: foundProduct,
-    });
+    return res.json(foundProduct);
   } catch (error) {
     return res.status(500).send("internal server error");
   }
