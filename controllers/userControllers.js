@@ -27,7 +27,7 @@ export async function signup(req, res) {
 
     await userModel.create(req.body);
 
-    return res.status(200).send("User is created successfully");
+    return res.status(200).send({ message: "User is created successfully" });
   } catch (error) {
     return res.status(500).send("Internal Server Error!");
   }
