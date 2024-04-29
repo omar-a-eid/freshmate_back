@@ -15,11 +15,13 @@ export async function GetProducts(req, res) {
 }
 
 export async function AddProduct(req, res) {
+  if (req.email != "admin@gmail.com")
+    return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const { title, images, price, quantity, desc } = req.body;
     const valid = validate(req.body);
     if (!valid) {
-      return res.status(400).json(valid.errors);
+      return res.status(400).json({ message: validate.errors });
     }
     const newProduct = new productModel({
       title,
@@ -59,6 +61,8 @@ export async function GetProductsById(req, res) {
 }
 
 export async function UpdateProduct(req, res) {
+  if (req.email != "admin@gmail.com")
+    return res.status(401).json({ error: "Not Authenticateed" });
   try {
     //Check product validation
     if (validate(req.body)) {
@@ -87,6 +91,8 @@ export async function UpdateProduct(req, res) {
 }
 
 export async function DeleteProduct(req, res) {
+  if (req.email != "admin@gmail.com")
+    return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const productId = req.params.id;
     const productToBeDeleted = await productModel.findOneAndDelete({

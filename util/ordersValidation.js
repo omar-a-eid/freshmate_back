@@ -8,7 +8,14 @@ const orderSchema = {
     userId: { type: "string" },
     products: {
       type: "array",
-      items: { type: "string" },
+      items: {
+        type: "object",
+        properties: {
+          product: { type: "string" },
+          quantity: { type: "number", minimum: 1 },
+        },
+        required: ["product", "quantity"],
+      },
       minItems: 1,
     },
     totalPrice: { type: "number", minimum: 0 },

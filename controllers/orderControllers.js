@@ -6,6 +6,8 @@ export async function GetAllOrdersForUser(req, res) {
   try {
     // Get the user ID from the request
     const userId = req.params.id;
+    const sameUser = userId == req.userId;
+    if (!sameUser) return res.status(401).json({ error: "Not Authenticateed" });
     // get all data from the DB
     const allOrders = await OrderModel.find({
       userId: userId,
@@ -22,6 +24,8 @@ export async function GetAllOrdersForUser(req, res) {
 }
 
 const GetAllOrders = async (req, res) => {
+  if (req.email != "admin@gmail.com")
+    return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const allOrders = await OrderModel.find().populate("products.product");
     return res.json(allOrders);
@@ -36,6 +40,8 @@ const GetOrdersById = async (req, res) => {
     const foundOrder = await OrderModel.findById({ _id: orderId }).populate(
       "products.product"
     );
+    const sameUser = foundOrder.userId == req.userId;
+
     if (foundOrder) {
       res.status(200).json({ data: foundOrder });
     } else {
@@ -47,6 +53,8 @@ const GetOrdersById = async (req, res) => {
 };
 
 const UpdateOrders = async (req, res) => {
+  if (req.email != "admin@gmail.com")
+    return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const orderId = req.params.id;
     let { status } = req.body;
@@ -62,7 +70,6 @@ const UpdateOrders = async (req, res) => {
       .status(200)
       .json({ message: "Order Updated Successfully", data: updatedOrder });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -75,15 +82,15 @@ export function CreateOrder(req, res) {
     // check order object validation
     if (status) req.body.status = mapStatus(status);
 
-    if (OrderValid(req.body)) {
-      const order = new OrderModel(req.body);
-      order.save();
-      return res
-        .status(201)
-        .json({ message: "Order Added Successfully", newOrder: order });
-    }
+    const valid = OrderValid(req.body);
+    if (!valid) return res.status(400).json(OrderValid.errors);
+
+    const order = new OrderModel(req.body);
+    order.save();
+    return res
+      .status(201)
+      .json({ message: "Order Added Successfully", newOrder: order });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -96,7 +103,6 @@ export async function DeleteOrder(req, res) {
     const deletedOrder = await OrderModel.findByIdAndDelete(orderId);
     if (deletedOrder) {
       // if exists delete order
-      //   await orderModel.deleteOne({ _id: orderId });
       return res.status(201).json({ message: "Order Deleted Successfully" });
     }
     return res.status(404).send("Order Not Found");
