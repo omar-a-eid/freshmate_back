@@ -2,7 +2,7 @@ import cartModel from "../models/cartModel.js";
 import productModel from "../models/productModel.js";
 
 export async function getCartItems(req, res) {
-  const userId = req.params.id;
+  const { userId } = req;
 
   try {
     const cart = await cartModel
