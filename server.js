@@ -8,6 +8,7 @@ import ordersRouters from "./routers/ordersRouters.js";
 import productsRouters from "./routers/productsRouters.js";
 import usersRouters from "./routers/usersRouters.js";
 import wishlistRouters from "./routers/wishlistRouters.js";
+import cartRouters from "./routers/cartRouters.js";
 
 //#endregion
 
@@ -25,6 +26,7 @@ app.use("/api/users", usersRouters);
 app.use("/api/products", productsRouters);
 app.use("/api/orders", ordersRouters);
 app.use("/api/wishlist", wishlistRouters);
+app.use("/api/cart", cartRouters)
 //#endregion
 
 app.listen(PORT, () => {
