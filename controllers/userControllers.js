@@ -25,9 +25,18 @@ export async function signup(req, res) {
     req.body.password = hashedPassword;
     req.body.email = email.toLowerCase();
 
-    await userModel.create(req.body);
+    const newUser = await userModel.create(req.body);
 
-    return res.status(200).send({ message: "User is created successfully" });
+    const token = jwt.sign(
+      { email: newUser.email, userId: newUser._id },
+      process.env.TOKEN_SECRET,
+      {
+        expiresIn: "10h",
+      }
+    );
+    return res
+      .status(200)
+      .send({ userId: newUser._id.toString(), token: token });
   } catch (error) {
     return res.status(500).send("Internal Server Error!");
   }
