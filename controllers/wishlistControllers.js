@@ -1,7 +1,7 @@
 import productModel from "../models/productModel.js";
 import wishlistModel from "../models/wishlistModel.js";
 
-export async function getWishlist(req, res) {
+export async function getWishlistItems(req, res) {
   const { userId } = req;
 
   try {
@@ -18,7 +18,7 @@ export async function getWishlist(req, res) {
   }
 }
 
-export async function addWishlist(req, res) {
+export async function addItemToWishlist(req, res) {
   const productId = req.params.id;
   const { userId } = req;
 

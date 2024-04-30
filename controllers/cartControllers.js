@@ -18,7 +18,7 @@ export async function getCartItems(req, res) {
   }
 }
 
-export async function addCartItems(req, res) {
+export async function addItemToCart(req, res) {
   const productId = req.params.id;
   const { userId } = req;
   const { quantity } = req.body;

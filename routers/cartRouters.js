@@ -4,7 +4,7 @@ import isAuth from "../middleware/isAuth.js";
 const router = Router();
 
 router.get("/", isAuth, cartControllers.getCartItems);
-router.post("/:id", isAuth, cartControllers.addCartItems);
+router.post("/:id", isAuth, cartControllers.addItemToCart);
 router.delete("/:id", isAuth, cartControllers.removeItemFromCart);
 
 export default router;
