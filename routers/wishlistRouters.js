@@ -5,6 +5,6 @@ const router = Router();
 
 router.get("/:id", isAuth, wishlistControllers.getWishlist);
 router.post("/:id", isAuth, wishlistControllers.addWishlist);
-router.put("/:id", isAuth, wishlistControllers.updateWishlist);
+router.delete("/:id", isAuth, wishlistControllers.removeItemFromWishlist);
 
 export default router;

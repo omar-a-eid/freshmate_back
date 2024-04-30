@@ -19,36 +19,35 @@ export async function getWishlist(req, res) {
 }
 
 export async function addWishlist(req, res) {
-  const userId = req.params.id;
-  const { productsId } = req.body;
+  const productId = req.params.id;
+  const { userId } = req;
 
   try {
     // Check if all products exist
-    const existingProducts = await productModel.find({
-      _id: { $in: productsId },
+    const existingProduct = await productModel.findOne({
+      _id: productId,
     });
-    const existingProductIds = existingProducts.map((product) =>
-      product._id.toString()
-    );
-    const missingProducts = productsId.filter(
-      (productId) => !existingProductIds.includes(productId)
-    );
 
-    if (missingProducts.length > 0) {
-      return res
-        .status(404)
-        .json({ message: `Products Not Found: ${missingProducts.join(", ")}` });
+    if (!existingProduct) {
+      return res.status(404).json({ message: `Product Not Found ` });
     }
     // Find or create wishlist for the user
     const wishlist = await wishlistModel.findOne({ userId });
 
     if (!wishlist) {
-      await wishlistModel.create({ userId, products: productsId });
+      await wishlistModel.create({ userId, products: [productId] });
     } else {
-      const newProductIds = productsId.filter(
-        (productId) => !wishlist.products.includes(productId)
+      const existingWishlistItem = wishlist.products.find(
+        (id) => id.toString() === productId
       );
-      wishlist.products.push(...newProductIds);
+
+      if (existingWishlistItem) {
+        return res
+          .status(200)
+          .json({ message: "Item is already in the wishlist" });
+      } else {
+        wishlist.products.push(productId);
+      }
       await wishlist.save();
     }
 
@@ -59,9 +58,9 @@ export async function addWishlist(req, res) {
   }
 }
 
-export async function updateWishlist(req, res) {
-  const userId = req.params.id;
-  const { productId } = req.body;
+export async function removeItemFromWishlist(req, res) {
+  const productId = req.params.id;
+  const { userId } = req;
 
   try {
     const wishlist = await wishlistModel.findOne({ userId });

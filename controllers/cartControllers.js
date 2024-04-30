@@ -1,5 +1,5 @@
-import productModel from "../models/productModel.js";
 import cartModel from "../models/cartModel.js";
+import productModel from "../models/productModel.js";
 
 export async function getCartItems(req, res) {
   const userId = req.params.id;
@@ -7,7 +7,7 @@ export async function getCartItems(req, res) {
   try {
     const cart = await cartModel
       .findOne({ userId })
-      .populate("products");
+      .populate("products.product");
     if (cart) {
       return res.json(cart);
     } else {
@@ -19,36 +19,37 @@ export async function getCartItems(req, res) {
 }
 
 export async function addCartItems(req, res) {
-  const userId = req.params.id;
-  const { productsId } = req.body;
+  const productId = req.params.id;
+  const { userId } = req;
+  const { quantity } = req.body;
 
   try {
     // Check if all products exist
-    const existingProducts = await productModel.find({
-      _id: { $in: productsId },
+    const existingProduct = await productModel.findOne({
+      _id: productId,
     });
-    const existingProductIds = existingProducts.map((product) =>
-      product._id.toString()
-    );
-    const missingProducts = productsId.filter(
-      (productId) => !existingProductIds.includes(productId)
-    );
 
-    if (missingProducts.length > 0) {
-      return res
-        .status(404)
-        .json({ message: `Products Not Found: ${missingProducts.join(", ")}` });
+    if (!existingProduct) {
+      return res.status(404).json({ message: `Product Not Found ` });
     }
     // Find or create cart for the user
     const cart = await cartModel.findOne({ userId });
 
     if (!cart) {
-      await cartModel.create({ userId, products: productsId });
+      await cartModel.create({
+        userId,
+        products: [{ product: productId, quantity }],
+      });
     } else {
-      const newProductIds = productsId.filter(
-        (productId) => !cart.products.includes(productId)
+      const existingCartItem = cart.products.find(
+        (item) => item.product.toString() === productId
       );
-      cart.products.push(...newProductIds);
+
+      if (existingCartItem) {
+        existingCartItem.quantity += quantity;
+      } else {
+        cart.products.push({ product: productId, quantity });
+      }
       await cart.save();
     }
 
@@ -60,31 +61,28 @@ export async function addCartItems(req, res) {
 }
 
 export async function updateCartItems(req, res) {
-  const userId = req.params.id;
-  const { productId } = req.body;
+  const productId = req.params.id;
+  const { userId } = req;
 
   try {
     const cart = await cartModel.findOne({ userId });
 
     if (!cart) {
-      return res
-        .status(404)
-        .json({ message: "cart not found for this user" });
+      return res.status(404).json({ message: "Cart not found for this user" });
     }
 
-    // Check if the product to remove exists in the cart
-    if (!cart.products.includes(productId)) {
-      return res
-        .status(404)
-        .json({ message: "Product not found in the cart" });
-    }
-
-    // Remove the product ID from the cart
-    cart.products = cart.products.filter(
-      (id) => id.toString() !== productId
+    const existingCartItem = cart.products.find(
+      (item) => item.product.toString() === productId
     );
 
-    // Save the updated cart
+    if (!existingCartItem) {
+      return res.status(404).json({ message: "Product not found in the cart" });
+    }
+
+    cart.products = cart.products.filter(
+      (item) => item.product.toString() !== productId
+    );
+
     await cart.save();
 
     return res
