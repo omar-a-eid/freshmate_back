@@ -46,7 +46,7 @@ export async function addCartItems(req, res) {
       );
 
       if (existingCartItem) {
-        existingCartItem.quantity += quantity;
+        existingCartItem.quantity = quantity;
       } else {
         cart.products.push({ product: productId, quantity });
       }
@@ -60,7 +60,7 @@ export async function addCartItems(req, res) {
   }
 }
 
-export async function updateCartItems(req, res) {
+export async function removeItemFromCart(req, res) {
   const productId = req.params.id;
   const { userId } = req;
 
