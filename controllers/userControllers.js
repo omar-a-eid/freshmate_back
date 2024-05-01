@@ -4,6 +4,24 @@ import userModel from "../models/userModel.js";
 import { mapGender, userExists } from "../util/userUtil.js";
 import validate from "../util/userValidation.js";
 
+
+export async function getUsersById(req, res) {
+  //add try and catch to handle the error
+  try {
+    // get id by params
+    const UserId = req.params.id;
+    // findone the particularid in the DB
+    const foundUser = await userModel.findOne({ _id: UserId });
+    if (!foundUser) {
+      //if not found in DB
+      return res.send("invalid User id");
+    }
+    return res.json(foundUser);
+  } catch (error) {
+    return res.status(500).send("internal server error");
+  }
+}
+
 export async function signup(req, res) {
   try {
     const { email, gender, password } = req.body;
