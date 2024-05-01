@@ -86,8 +86,6 @@ export async function update(req, res) {
       foundUser.username = req.body.username;
       // Update request body with hashed password and lowercased email
       foundUser.email = req.body.email.toLowerCase();
-      const hashedPassword = await bcrypt.hash(foundUser.password, 10);
-      foundUser.password = hashedPassword;
 
       //save to database
       let updatedUser = await foundUser.save();
