@@ -21,10 +21,9 @@ export async function getCartItems(req, res) {
 export async function addItemToCart(req, res) {
   const productId = req.params.id;
   const { userId } = req;
-  const { quantity } = req.body;
+  let { quantity } = req.body;
 
   try {
-    // Check if all products exist
     const existingProduct = await productModel.findOne({
       _id: productId,
     });
@@ -32,13 +31,13 @@ export async function addItemToCart(req, res) {
     if (!existingProduct) {
       return res.status(404).json({ message: `Product Not Found ` });
     }
-    // Find or create cart for the user
-    const cart = await cartModel.findOne({ userId });
+
+    let cart = await cartModel.findOne({ userId });
 
     if (!cart) {
-      await cartModel.create({
+      cart = await cartModel.create({
         userId,
-        products: [{ product: productId, quantity }],
+        products: [{ product: productId, quantity: quantity || 1 }],
       });
     } else {
       const existingCartItem = cart.products.find(
@@ -46,14 +45,16 @@ export async function addItemToCart(req, res) {
       );
 
       if (existingCartItem) {
-        existingCartItem.quantity = quantity;
+        existingCartItem.quantity += quantity || 1;
       } else {
+        quantity = quantity || 1;
         cart.products.push({ product: productId, quantity });
       }
+
       await cart.save();
     }
 
-    return res.status(200).json({ message: "cart Added Successfully" });
+    return res.status(200).json({ message: "Cart updated successfully" });
   } catch (error) {
     console.error("Error adding cart:", error);
     return res.status(500).send("Internal Server Error");
@@ -90,6 +91,30 @@ export async function removeItemFromCart(req, res) {
       .json({ message: "Product removed from cart successfully" });
   } catch (error) {
     console.error("Error updating cart:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+}
+
+export async function updateCartItemQuantity(req, res) {
+  const { productId, quantity } = req.body;
+  const { userId } = req;
+
+  try {
+    const cart = await cartModel.findOneAndUpdate(
+      { userId, "products.product": productId },
+      { $set: { "products.$.quantity": quantity } },
+      { new: true }
+    );
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Cart item quantity updated successfully" });
+  } catch (error) {
+    console.error("Error updating cart item quantity:", error);
     return res.status(500).send("Internal Server Error");
   }
 }
