@@ -12,6 +12,7 @@ const userSchema = new Schema({
     lowercase: true,
   },
   password: { type: String, required: true, minlength: 6 },
+  avatar: { type: String, required: true },
   gender: {
     ar: { type: String, enum: ["ذكر", "انثى"], required: true },
     en: { type: String, enum: ["male", "female"], required: true },

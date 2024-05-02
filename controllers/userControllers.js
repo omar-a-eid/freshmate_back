@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt";
+import fs from "fs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import { mapGender, userExists } from "../util/userUtil.js";
 import validate from "../util/userValidation.js";
-
-
 export async function getUsersById(req, res) {
   //add try and catch to handle the error
   try {
@@ -23,6 +22,7 @@ export async function getUsersById(req, res) {
 }
 
 export async function signup(req, res) {
+  const { filename } = req.file;
   try {
     const { email, gender, password } = req.body;
     // map the gender to the corresponding object
@@ -30,18 +30,36 @@ export async function signup(req, res) {
 
     // Validate request body
     const valid = validate(req.body);
-    if (!valid) return res.status(400).json(validate.errors);
+    if (!valid) {
+      fs.unlink("public/assets/profiles/" + filename, (err) => {
+        if (err) {
+          console.error(`Error deleting image`, err);
+        } else {
+          console.log(`Deleted image`);
+        }
+      });
+      return res.status(400).json(validate.errors);
+    }
 
     // Check if user already exists
     const userAlreadyExists = await userExists(email);
-    if (userAlreadyExists)
+    if (userAlreadyExists) {
+      fs.unlink("public/assets/profiles/" + filename, (err) => {
+        if (err) {
+          console.error(`Error deleting image`, err);
+        } else {
+          console.log(`Deleted image`);
+        }
+      });
       return res.status(400).send("The user already exists");
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Update request body with hashed password and lowercased email
     req.body.password = hashedPassword;
     req.body.email = email.toLowerCase();
+    req.body.avatar = "assets/profiles/" + filename;
 
     const newUser = await userModel.create(req.body);
 
@@ -56,6 +74,14 @@ export async function signup(req, res) {
       .status(200)
       .send({ userId: newUser._id.toString(), token: token });
   } catch (error) {
+    fs.unlink("public/assets/profiles/" + filename, (err) => {
+      if (err) {
+        console.error(`Error deleting image`, err);
+      } else {
+        console.log(`Deleted image`);
+      }
+    });
+    console.log(error);
     return res.status(500).send("Internal Server Error!");
   }
 }
@@ -89,38 +115,51 @@ export async function login(req, res) {
 
 export async function update(req, res) {
   try {
-    const { gender } = req.body;
+    const { gender, username, email, password } = req.body;
     if (gender) req.body.gender = mapGender(gender);
 
-    if (validate(req.body)) {
-      // get param of order req.body.id
-      const UserId = req.params.id;
-      // check for it in the db if found change the data
-      const foundUser = await userModel.findById(UserId);
-      if (!foundUser) {
-        return res.send(`User not found`);
-      }
-      //update the new data with the old data
-      foundUser.username = req.body.username;
-      // Update request body with hashed password and lowercased email
-      foundUser.email = req.body.email.toLowerCase();
-
-      //save to database
-      let updatedUser = await foundUser.save();
-      // AllOrders = await OrderModel.find();
-      return res.json({
-        message: `Order ${UserId} updated successfully`,
-        data: updatedUser,
-      }); // res
+    // get param of order req.body.id
+    const UserId = req.params.id;
+    // check for it in the db if found change the data
+    const foundUser = await userModel.findById(UserId);
+    if (!foundUser) {
+      return res.send(`User not found`);
     }
-    res.send(
-      validate.errors[0].instancePath.split("/")[1] +
-        " : " +
-        validate.errors[0].keyword +
-        " ==> " +
-        validate.errors[0].message
-    );
+    //update the new data with the old data
+    if (username) {
+      foundUser.username = username;
+    }
+    // Update request body with hashed password and lowercased email
+    if (email) {
+      foundUser.email = email.toLowerCase();
+    }
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      req.body.password = hashedPassword;
+    }
+    if (req.file) {
+      const { filename } = req.file;
+
+      fs.unlink("public/assets/profiles/" + foundUser.avatar, (err) => {
+        if (err) {
+          console.error(`Error deleting image`, err);
+        } else {
+          console.log(`Deleted image`);
+        }
+      });
+
+      foundUser.avatar = "assets/profiles/" + filename;
+    }
+
+    //save to database
+    let updatedUser = await foundUser.save();
+    // AllOrders = await OrderModel.find();
+    return res.json({
+      message: `User ${UserId} updated successfully`,
+      data: updatedUser,
+    }); // res
   } catch (error) {
+    console.log(error);
     return res.status(500).send("Internal Server Error!");
   }
 }

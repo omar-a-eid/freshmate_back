@@ -1,5 +1,7 @@
+import fs from "fs";
 import productModel from "../models/productModel.js";
 import validate from "../util/productsValidation.js";
+
 export async function GetProducts(req, res) {
   try {
     // Get All Products
@@ -18,25 +20,26 @@ export async function AddProduct(req, res) {
   if (req.email != "admin@gmail.com")
     return res.status(401).json({ error: "Not Authenticateed" });
   try {
-    const { title, images, price, quantity, desc } = req.body;
+    const { price, quantity } = req.body;
+    const images = req.files.map((file) => "assets/products/" + file.filename);
+    req.body.images = images;
+    req.body.price = +price;
+    req.body.quantity = +quantity;
     const valid = validate(req.body);
     if (!valid) {
       return res.status(400).json({ message: validate.errors });
     }
-    const newProduct = new productModel({
-      title,
-      images,
-      price,
-      quantity,
-      desc,
-    });
+    console.log(images);
+    const newProduct = new productModel(req.body);
     await newProduct.save();
     return res.json({
       message: "Product added successfully",
       data: newProduct,
     });
   } catch (error) {
-    return res.status(500).send("Internal server error");
+    // return res.status(500).send("Internal server error");
+    console.log(error);
+    return res.status(500).send({ error: error });
   }
 }
 
@@ -61,28 +64,43 @@ export async function UpdateProduct(req, res) {
   if (req.email != "admin@gmail.com")
     return res.status(401).json({ error: "Not Authenticateed" });
   try {
+    const { oldImages, price, quantity } = req.body;
+    const images = req.files.map((file) => "assets/products/" + file.filename);
+    if (oldImages) {
+      oldImages.split(",").map((img) => {
+        images.push(img);
+      });
+    }
+    req.body.price = +price;
+    req.body.quantity = +quantity;
+    req.body.images = images;
     //Check product validation
-    if (validate(req.body)) {
-      //Find product id
-      const productId = req.params.id;
-      const product = await productModel.findById(productId);
-      if (product) {
-        //Get updated data
-        const updatedProductData = req.body;
-        //Update product
-        const updatedProduct = await productModel.updateOne(
-          { _id: productId },
-          updatedProductData
-        );
-        return res.json({
-          message: "product updated successfully ",
-          Product: updatedProduct,
-        });
-      } else {
-        return res.json({ message: "No product found with this id" });
-      }
+    const valid = validate(req.body);
+    if (!valid) {
+      return res.status(400).json({ message: validate.errors });
+    }
+    console.log(req.body);
+
+    //Find product id
+    const productId = req.params.id;
+    const product = await productModel.findById(productId);
+    if (product) {
+      //Get updated data
+      const updatedProductData = req.body;
+      //Update product
+      const updatedProduct = await productModel.updateOne(
+        { _id: productId },
+        updatedProductData
+      );
+      return res.json({
+        message: "product updated successfully ",
+        Product: updatedProduct,
+      });
+    } else {
+      return res.json({ message: "No product found with this id" });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).send("Internal server error");
   }
 }
@@ -100,11 +118,23 @@ export async function DeleteProduct(req, res) {
         .status(404)
         .json({ message: `Product with id ${productId} not found` });
     }
+    if (productToBeDeleted && productToBeDeleted.images) {
+      productToBeDeleted.images.map((img) => {
+        fs.unlink("public/" + img, (err) => {
+          if (err) {
+            console.error(`Error deleting image: ${img}`, err);
+          } else {
+            console.log(`Deleted image: ${img}`);
+          }
+        });
+      });
+    }
     return res.json({
       message: `Product with id ${productId} deleted successfully`,
       data: productToBeDeleted,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).send("Internal server error");
   }
 }
