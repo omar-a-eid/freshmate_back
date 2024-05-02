@@ -1,6 +1,5 @@
 import OrderModel from "../models/orderModel.js";
 import { mapStatus } from "../util/orderUtil.js";
-import OrderValid from "../util/ordersValidation.js";
 
 export async function GetAllOrdersForUser(req, res) {
   try {
@@ -74,7 +73,7 @@ const UpdateOrders = async (req, res) => {
   }
 };
 
-export function CreateOrder(req, res) {
+export async function CreateOrder(req, res) {
   try {
     // get order from user
     const { status } = req.body;
@@ -82,15 +81,10 @@ export function CreateOrder(req, res) {
     // check order object validation
     if (status) req.body.status = mapStatus(status);
 
-    const valid = OrderValid(req.body);
-    if (!valid) return res.status(400).json(OrderValid.errors);
-
-    const order = new OrderModel(req.body);
-    order.save();
-    return res
-      .status(201)
-      .json({ message: "Order Added Successfully", newOrder: order });
+    await OrderModel.create(req.body);
+    return res.status(201).json({ message: "Order Added Successfully" });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
