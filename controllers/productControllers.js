@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import productModel from "../models/productModel.js";
 import validate from "../util/productsValidation.js";
 
@@ -21,7 +22,9 @@ export async function AddProduct(req, res) {
     return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const { price, quantity } = req.body;
-    const images = req.files.map((file) => "assets/products/" + file.filename);
+    const images = req.files.map((file) =>
+      path.join("assets", "products", file.filename)
+    );
     req.body.images = images;
     req.body.price = +price;
     req.body.quantity = +quantity;
@@ -65,7 +68,9 @@ export async function UpdateProduct(req, res) {
     return res.status(401).json({ error: "Not Authenticateed" });
   try {
     const { oldImages, price, quantity } = req.body;
-    const images = req.files.map((file) => "assets/products/" + file.filename);
+    const images = req.files.map((file) =>
+      path.join("assets", "products", file.filename)
+    );
     if (oldImages) {
       oldImages.split(",").map((img) => {
         images.push(img);
@@ -120,7 +125,7 @@ export async function DeleteProduct(req, res) {
     }
     if (productToBeDeleted && productToBeDeleted.images) {
       productToBeDeleted.images.map((img) => {
-        fs.unlink("public/" + img, (err) => {
+        fs.unlink(path.join("public", img), (err) => {
           if (err) {
             console.error(`Error deleting image: ${img}`, err);
           } else {

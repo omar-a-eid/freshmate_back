@@ -1,15 +1,18 @@
 import { Router } from "express";
 import multer from "multer";
+import path from "path";
 import * as userControllers from "../controllers/userControllers.js";
 import isAuth from "../middleware/isAuth.js";
+
 const router = Router();
+const filePath = path.join("public", "assets", "profiles");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/assets/profiles/");
+    cb(null, filePath);
   },
   filename: function (req, file, cb) {
-    cb(null, new Date().toISOString() + file.originalname);
+    cb(null, file.originalname);
   },
 });
 const upload = multer({ storage: storage });
