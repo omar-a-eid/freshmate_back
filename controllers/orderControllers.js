@@ -26,7 +26,9 @@ const GetAllOrders = async (req, res) => {
   if (req.email != "admin@gmail.com")
     return res.status(401).json({ error: "Not Authenticateed" });
   try {
-    const allOrders = await OrderModel.find().populate("products.product");
+    const allOrders = await OrderModel.find()
+      .populate("products.product")
+      .populate("userId");
     return res.json(allOrders);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
