@@ -1,52 +1,51 @@
-# freshmate_back
+# Freshmate Backend
 
-This project is an online store web application that allows users to browse products, add them to their cart, make orders, and manage their profiles. The application supports two user roles: Admin and User, each with specific functionalities.
+Welcome to the backend repository for Freshmate! This backend server is built using Node.js to provide the necessary APIs for the Freshmate ecommerce website frontend.
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Frontend Repository](#frontend-repository)
+6. [Contributing](#contributing)
+7. [License](#license)
+
+## Introduction
+
+The Freshmate backend is designed to handle various functionalities required by the frontend application, including user authentication, product management, and order processing. It provides RESTful APIs that communicate with the frontend to ensure seamless interaction with the database and other services.
 
 ## Features
 
-- **Product browsing:** Users can view products categorized by type, brand, etc.
-- **Product details:** Each product page displays detailed information, including images, descriptions, prices, and reviews.
-- **Cart management:** Users can add/remove products to/from their cart and update quantities.
-- **Checkout:** Secure checkout process with payment integration.
-- **User authentication:** Users can register, login, and manage their profiles.
+- **User Authentication:** Secure endpoints for user registration, login, and authentication.
+- **Product Management:** CRUD operations for managing products and categories.
+- **Order Processing:** APIs for creating, updating, and retrieving orders.
+- **Middleware Integration:** Utilizes middleware for error handling, authentication, and request validation.
 
-### Admin Dashboard:
+## Installation
 
-- **Product management:** Add, edit, and delete products.
-- **Order management:** View and manage orders, update order status.
-- **User management:** View and manage user accounts.
-- **Statistics:** View charts and graphs with insights on product sales, order volume, user activity, etc.
+To run the Freshmate backend locally, follow these steps:
 
-## Technologies Used
+1. Clone this repository to your local machine.
+2. Navigate to the project directory in your terminal.
+3. Install dependencies by running `npm install`.
+4. Create a `.env` file in the root directory of the project.
+5. Add the following environment variables to the `.env` file:
+   PORT=8000
+   MONGODB=<your_mongodb_connection_string>
+   TOKEN_SECRET=<your_token_secret>
+   Replace `<your_mongodb_connection_string>` with your MongoDB connection string and `<your_token_secret>` with a secret key for JWT token generation.
+6. Start the server by running `npm run watch`.
+7. The server will be running on port 8000 by default.
 
-### Backend:
+## Usage
 
-- Node.js
-- Express.js
-- MongoDB (NoSQL database)
+Once the backend server is running, it will be ready to handle requests from the Freshmate frontend application. Ensure that the frontend application is configured to communicate with the backend server (e.g., update API URLs).
 
-## Getting Started
+## Frontend Repository
 
-### Prerequisites
-
-- Node.js and npm should be installed on your machine.
-- MongoDB should be installed and running locally or on a remote server.
-
-### Installation
-
-1. Clone the repository: `git clone https://github.com/omar-a-eid/freshmate_back.git`
-2. Install dependencies:
-   - Backend: Navigate to the server directory and run `npm install`
-3. Set up environment variables:
-   - Create a `.env` file in both client and server directories.
-   - Add necessary environment variables (e.g., database connection string, API keys).
-4. Start the application:
-   - Backend: Run `node server.js` (or the appropriate command to start your server)
-
-### Usage
-
-- Access the application in your browser (usually at http://localhost:4200).
-- Browse products, add items to your cart, and proceed through checkout.
+The frontend for Freshmate is hosted in a separate repository. You can find it [here](https://github.com/omar-a-eid/freshmate_front).
 
 ## Contributors ✨
 
